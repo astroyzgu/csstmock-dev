@@ -1,0 +1,7 @@
+Metadata-Version: 2.1
+Name: csstmock
+Version: 1.0.0
+Summary: Construct mock catalog and apply foreground masks for CSST.
+Author: SJTU group
+Author-email: Yizhou Gu <guyizhou@sjtu.edu.cn>
+Requires-Python: >=3.7

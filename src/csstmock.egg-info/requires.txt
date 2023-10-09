@@ -1,0 +1,6 @@
+matplotlib
+numpy
+astropy
+healpy
+h5py
+pytest
