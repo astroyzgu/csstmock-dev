@@ -23,43 +23,73 @@ import logging
 jiutian_home = os.environ.get('JIUTIAN_HOME') 
 if jiutian_home is None: jiutian_home='/home/cossim/Jiutian/'
     
-def subhalo_filnum(snapnum, datadir = jiutian_home + './M1000/hbt/') 
+def subhalo_filenum(snapnum, datadir = jiutian_home + './M1000/hbt/'): 
     filename  = os.path.join(datadir, str(snapnum).zfill(3), 'SubSnap_%s.*.hdf5'%(snapnum))
     filenames = glob.glob(filename)
     filenums  = []
     for filenum in np.arange(len(filenames)): 
-    	filename  = os.path.join(datadir, str(snapnum).zfill(3), 'SubSnap_%s.%s.hdf5'%(snapnum, filenum) )
+        filename  = os.path.join(datadir, str(snapnum).zfill(3), 'SubSnap_%s.%s.hdf5'%(snapnum, filenum) )
         if not os.path.exists(filename): 
             logging.warning("'%s' do not exist."%filename)   
     return len(filenames)
 
-def halo_filnum(snapnum, datadir = jiutian_home + './M1000/groups/') 
+def subhalo(snapnum, filenum, props = None, datadir = jiutian_home + './M1000/hbt/'):
+    validnames = ['TrackId', 'Nbound', 'Mbound', 'HostHaloId', 'Rank', 'Depth', 'LastMaxMass', 'SnapshotIndexOfLastMaxMass', 'SnapshotIndexOfLastIsolation', 'SnapshotIndexOfBirth', 'SnapshotIndexOfDeath', 'SnapshotIndexOfSink', 'RmaxComoving', 'VmaxPhysical', 'LastMaxVmaxPhysical', 'SnapshotIndexOfLastMaxVmax', 'R2SigmaComoving', 'RHalfComoving', 'BoundR200CritComoving', 'BoundM200Crit', 'SpecificSelfPotentialEnergy', 'SpecificSelfKineticEnergy', 'SpecificAngularMomentum', 'InertialEigenVector', 'InertialEigenVectorWeighted', 'InertialTensor', 'InertialTensorWeighted', 'ComovingAveragePosition', 'PhysicalAverageVelocity', 'ComovingMostBoundPosition', 'PhysicalMostBoundVelocity', 'MostBoundParticleId', 'SinkTrackId']
+    types = ['<i8', '<i8', '<f4', '<i8', '<i8', '<i4', '<f4', '<i4', '<i4', '<i4', '<i4', '<i4', '<f4', '<f4', '<f4', '<i4', '<f4', '<f4', '<f4', '<f4', '<f4', '<f4', '<f4', '<f4', '<f4', '<f4', '<f4', '<f4', '<f4', '<f4', '<f4', '<i8', '<i8']
+    if props is None: props = validnames
+    props = np.atleast_1d(props)
+    indx       = np.isin(props, validnames)
+    if np.sum(indx) != len(indx): logging.warning('The following properties %s is not available, which has been removed from the output array.'%props[~indx])
+    props   = props[indx]
+    filenum = np.atleast_1d(filenum)
+
+    if len(filenum) == 0:
+        logging.warning('The files of snapnum == %s are not found, return [].'%snapnum)
+        return np.array([])
+
+    branchs = []
+    for ifile in filenum:
+        filename  = os.path.join(datadir, str(snapnum).zfill(3), 'SubSnap_%s.%s.hdf5'%(snapnum, ifile ) ) 
+        f   = h5py.File(filename,'r')
+        branchs.append( f['Subhalos'][:][props]  )
+        f.close()
+    arr  = np.concatenate(branchs, axis = 0)
+    return arr
+
+
+def halo_filenum(snapnum, datadir = jiutian_home + './M1000/groups/'):  
     filename  = os.path.join(datadir, 'groups_' + str(snapnum).zfill(3), 'subhalo_tab_%s.*'%(snapnum))
     filenames = glob.glob(filename)
     filenums  = []
     for filenum in np.arange(len(filenames)): 
-    	filename  = os.path.join(datadir, 'groups_' + str(snapnum).zfill(3), 'subhalo_tab_%s.%s'%(snapnum, filenum))
+        filename  = os.path.join(datadir, 'groups_' + str(snapnum).zfill(3), 'subhalo_tab_%s.%s'%(snapnum, filenum))
         if not os.path.exists(filename): 
             logging.warning("'%s' do not exist."%filename)   
     return len(filenames)
 
-# __ALL__ = ['collect4csstmock', 'read_groups', 'read_hbt', 'nexthaloid']
-#class lightcone(object) 
-#def fullsky_z2(filenum, start, end, properties_used): 
-# 
-#    return
+def halo(snapnum, filenum, props = None, datadir = jiutian_home + './M1000/hbt/'):
+    # validnames = ['TrackId', 'Nbound', 'Mbound', 'HostHaloId', 'Rank', 'Depth', 'LastMaxMass', 'SnapshotIndexOfLastMaxMass', 'SnapshotIndexOfLastIsolation', 'SnapshotIndexOfBirth', 'SnapshotIndexOfDeath', 'SnapshotIndexOfSink', 'RmaxComoving', 'VmaxPhysical', 'LastMaxVmaxPhysical', 'SnapshotIndexOfLastMaxVmax', 'R2SigmaComoving', 'RHalfComoving', 'BoundR200CritComoving', 'BoundM200Crit', 'SpecificSelfPotentialEnergy', 'SpecificSelfKineticEnergy', 'SpecificAngularMomentum', 'InertialEigenVector', 'InertialEigenVectorWeighted', 'InertialTensor', 'InertialTensorWeighted', 'ComovingAveragePosition', 'PhysicalAverageVelocity', 'ComovingMostBoundPosition', 'PhysicalMostBoundVelocity', 'MostBoundParticleId', 'SinkTrackId']
+    # types = ['<i8', '<i8', '<f4', '<i8', '<i8', '<i4', '<f4', '<i4', '<i4', '<i4', '<i4', '<i4', '<f4', '<f4', '<f4', '<i4', '<f4', '<f4', '<f4', '<f4', '<f4', '<f4', '<f4', '<f4', '<f4', '<f4', '<f4', '<f4', '<f4', '<f4', '<f4', '<i8', '<i8']
+    if props is None: props = validnames
+    props = np.atleast_1d(props)
+    indx       = np.isin(props, validnames)
+    if np.sum(indx) != len(indx): logging.warning('The following properties %s is not available, which has been removed from the output array.'%props[~indx])
+    props   = props[indx]
+    filenum = np.atleast_1d(filenum)
 
-def fullsky_z2_filenum(snapnum, datadir = jiutian_home + './M1000/lightcones/fullsky_z2/'): 
-    filename  = datadir + './with_groups/fs_z2_%i_*.hdf5'%(snapnum)
-    filenames = glob.glob(filename)
-    filenums  = []
-    for filenum in np.arange(len(filenames)): 
-        filename  = datadir + './with_groups/fs_z2_%i_%i.hdf5'%(snapnum, filenum)
-        if not os.path.exists(filename): 
-            logging.warning("'%s' do not exist."%filename)   
-    return len(filenames)
+    if len(filenum) == 0:
+        logging.warning('The files of snapnum == %s are not found, return [].'%snapnum)
+        return np.array([])
 
- 
+    branchs = []
+    for ifile in filenum:
+        filename  = os.path.join(datadir, 'groups_' + str(snapnum).zfill(3), 'subhalo_tab_%s.%s'%(snapnum, filenum))
+        grp_= subfind_catalog(filename)
+    	for block in blocks:
+            DATAALL[block]  = getattr(grp_, block)
+            DATATYPE[block] = getattr(grp_, block).dtype
+
+
 def fullsky_z2_filenum(snapnum, datadir = jiutian_home + './M1000/lightcones/fullsky_z2/'): 
     filename  = datadir + './with_groups/fs_z2_%i_*.hdf5'%(snapnum)
     filenames = glob.glob(filename)
