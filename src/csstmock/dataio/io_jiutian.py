@@ -23,12 +23,41 @@ import logging
 jiutian_home = os.environ.get('JIUTIAN_HOME') 
 if jiutian_home is None: jiutian_home='/home/cossim/Jiutian/'
     
+def subhalo_filnum(snapnum, datadir = jiutian_home + './M1000/hbt/') 
+    filename  = os.path.join(datadir, str(snapnum).zfill(3), 'SubSnap_%s.*.hdf5'%(snapnum))
+    filenames = glob.glob(filename)
+    filenums  = []
+    for filenum in np.arange(len(filenames)): 
+    	filename  = os.path.join(datadir, str(snapnum).zfill(3), 'SubSnap_%s.%s.hdf5'%(snapnum, filenum) )
+        if not os.path.exists(filename): 
+            logging.warning("'%s' do not exist."%filename)   
+    return len(filenames)
+
+def halo_filnum(snapnum, datadir = jiutian_home + './M1000/groups/') 
+    filename  = os.path.join(datadir, 'groups_' + str(snapnum).zfill(3), 'subhalo_tab_%s.*'%(snapnum))
+    filenames = glob.glob(filename)
+    filenums  = []
+    for filenum in np.arange(len(filenames)): 
+    	filename  = os.path.join(datadir, 'groups_' + str(snapnum).zfill(3), 'subhalo_tab_%s.%s'%(snapnum, filenum))
+        if not os.path.exists(filename): 
+            logging.warning("'%s' do not exist."%filename)   
+    return len(filenames)
 
 # __ALL__ = ['collect4csstmock', 'read_groups', 'read_hbt', 'nexthaloid']
 #class lightcone(object) 
 #def fullsky_z2(filenum, start, end, properties_used): 
 # 
 #    return
+
+def fullsky_z2_filenum(snapnum, datadir = jiutian_home + './M1000/lightcones/fullsky_z2/'): 
+    filename  = datadir + './with_groups/fs_z2_%i_*.hdf5'%(snapnum)
+    filenames = glob.glob(filename)
+    filenums  = []
+    for filenum in np.arange(len(filenames)): 
+        filename  = datadir + './with_groups/fs_z2_%i_%i.hdf5'%(snapnum, filenum)
+        if not os.path.exists(filename): 
+            logging.warning("'%s' do not exist."%filename)   
+    return len(filenames)
 
  
 def fullsky_z2_filenum(snapnum, datadir = jiutian_home + './M1000/lightcones/fullsky_z2/'): 

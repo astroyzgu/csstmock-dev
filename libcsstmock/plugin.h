@@ -1,4 +1,5 @@
-extern  void fullsky_z2_jiutian_c(int *, int*, long *, float *, long *); 
+extern  void isin_survey_c(float *, float *, long *, char *, float *); 
+extern  void fullsky_z2_jiutian_c(int *, int *, long *, float *, long *); 
 extern  void fullsky_z2_filenum_jiutian_c(int *, int *); 
 extern  void dummydata_c(long *, double *, char *, long *, long *, long *, long *);  
 extern  void dummydata_mpi_c( long *, char *, double *, long *, long *, long *, long *); 

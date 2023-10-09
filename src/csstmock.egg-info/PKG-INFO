@@ -5,3 +5,9 @@ Summary: Construct mock catalog and apply foreground masks for CSST.
 Author: SJTU group
 Author-email: Yizhou Gu <guyizhou@sjtu.edu.cn>
 Requires-Python: >=3.7
+Requires-Dist: matplotlib
+Requires-Dist: numpy
+Requires-Dist: astropy
+Requires-Dist: healpy
+Requires-Dist: h5py
+Requires-Dist: pytest

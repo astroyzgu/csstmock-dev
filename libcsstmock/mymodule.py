@@ -23,14 +23,44 @@ def asarray(ffi, ptr, shape, **kwargs):
     a = np.frombuffer(ffi.buffer(ptr, length * ffi.sizeof(T)), ctype2dtype[T])\
           .reshape(shape, **kwargs) 
     return a
+#
+@ffi.def_extern() 
+def box_filenum_jiutian_c(snapnum, filenum): 
+    snapnum = asarray( ffi, snapnum, 1)   
+    filenum = asarray( ffi, filenum, 1)   
+    from csstmock.dataio import io_jiutian
+    filenum[0] = io_jiutian.box_filenum(snapnum[0])
 
+@ffi.def_extern() 
+def box_jiutian_c(snapnum, ifile, larr, darr, nmax): 
+    snapnum = asarray( ffi, snapnum, 1)   
+    ifile   = asarray( ffi, ifile,   1)   
+    nmax    = asarray( ffi, nmax,    1)   
+    larr    = asarray( ffi, larr, (nmax[0], 5) )
+    darr    = asarray( ffi, darr, (nmax[0],20) )
+
+#------------------ start isin_survey_c
+@ffi.def_extern()
+def isin_survey_c(ra, dec, n, survey, veto): 
+    n         = asarray( ffi, n, 1)   
+    ra        = asarray( ffi, ra,  n[0])   
+    dec       = asarray( ffi, dec, n[0])   
+    veto      = asarray( ffi, veto,n[0]) 
+    strsurvey = asstring(ffi, survey, length = 256, Nc = 1 ) 
+    # >>> start to read data 
+    print(strsurvey, n)
+    print(ra[:5])
+    print(dec[:5])
+    print(veto[:5])
+#------------------ end isin_survey_c   
+
+#------------------ start fullsky_z2_jiutian_c  
 @ffi.def_extern() 
 def fullsky_z2_filenum_jiutian_c(snapnum, filenum): 
     snapnum = asarray( ffi, snapnum, 1)   
     filenum = asarray( ffi, filenum, 1)   
     from csstmock.dataio import io_jiutian
     filenum[0] = io_jiutian.fullsky_z2_filenum(snapnum[0])
-
 @ffi.def_extern()
 def fullsky_z2_jiutian_c(snapnum, ifile, larr, darr, nmax): 
     snapnum = asarray( ffi, snapnum, 1)   
@@ -48,7 +78,6 @@ def fullsky_z2_jiutian_c(snapnum, ifile, larr, darr, nmax):
     idx_i8type = np.isin(colnames, col_i8type) 
     col_f8type = colnames[~idx_i8type]
     # <<< end 
-
     # >>> assign to the sharing memary 
     nmax[0] = nsub 
     from numpy.lib.recfunctions import structured_to_unstructured
@@ -56,7 +85,6 @@ def fullsky_z2_jiutian_c(snapnum, ifile, larr, darr, nmax):
     darr[:nsub,:] = structured_to_unstructured(arr[col_f8type], dtype='f4') 
     t2 = time.time() 
     # print ('fullsky_z2_jiutian_c(snapnum = %s) takes %.2f s'%(snapnum[0], t2 - t1))
-
 #------------------ end fullsky_z2_jiutian_c 
 
 
