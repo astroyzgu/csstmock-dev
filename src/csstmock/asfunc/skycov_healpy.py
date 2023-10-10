@@ -6,7 +6,7 @@ from astropy.coordinates import SkyCoord
 
 def skycov_avail():
     LOCATION    = os.path.dirname(os.path.abspath(__file__)) 
-    print(LOCATION) 
+    # print(LOCATION) 
     search_path = os.path.join(LOCATION, './skycov*.npy')
     path_available = glob.glob(search_path) 
     survey_available = []
@@ -22,7 +22,7 @@ def skycov_avail():
     nside_available  = np.array(nside_available)
     return survey_available, nside_available
 
-def skycov_healpy(surveyname):
+def skycov_healpy(surveyname, verbose = 0):
     ''' 
     Return the vetomap and nside of preset healpy pixelization of some given surveys.
 
@@ -63,15 +63,16 @@ def skycov_healpy(surveyname):
     w = np.arange(12*nside*nside).astype('float64')*0.0
     w[pix] = 1.0
     
-    npix = len(pix)
-    pixarea = hp.nside2pixarea(nside, degrees= True) 
-    print( 'sky coverage is %.2f deg^2 using nside = %s (pixarea = %9.3e deg^2/pixel)'%(pixarea*npix, nside, pixarea) )
-    ra, dec = hp.pix2ang(nside, pix, lonlat = True)
-    coord   = SkyCoord(ra, dec, unit = 'deg', frame='icrs')  # using degrees directly
-    npix = int( np.sum( coord.galactic.b < 0) )
-    print( 'South (b<0) coverage = %.2f deg^2'%(pixarea*npix ) )
-    npix = int( np.sum( coord.galactic.b > 0) )
-    print( 'North (b>0) coverage = %.2f deg^2'%(pixarea*npix ) )
+    if verbose != 0: 
+        npix = len(pix)
+        pixarea = hp.nside2pixarea(nside, degrees= True) 
+        print( 'sky coverage is %.2f deg^2 using nside = %s (pixarea = %9.3e deg^2/pixel)'%(pixarea*npix, nside, pixarea) )
+        ra, dec = hp.pix2ang(nside, pix, lonlat = True)
+        coord   = SkyCoord(ra, dec, unit = 'deg', frame='icrs')  # using degrees directly
+        npix = int( np.sum( coord.galactic.b < 0) )
+        print( 'South (b<0) coverage = %.2f deg^2'%(pixarea*npix ) )
+        npix = int( np.sum( coord.galactic.b > 0) )
+        print( 'North (b>0) coverage = %.2f deg^2'%(pixarea*npix ) )
     return w, nside
 
 def assignwht_healpy(x, y, w): 
