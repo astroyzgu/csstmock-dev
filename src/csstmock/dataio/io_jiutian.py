@@ -68,26 +68,80 @@ def halo_filenum(snapnum, datadir = jiutian_home + './M1000/groups/'):
     return len(filenames)
 
 def halo(snapnum, filenum, props = None, datadir = jiutian_home + './M1000/hbt/'):
-    # validnames = ['TrackId', 'Nbound', 'Mbound', 'HostHaloId', 'Rank', 'Depth', 'LastMaxMass', 'SnapshotIndexOfLastMaxMass', 'SnapshotIndexOfLastIsolation', 'SnapshotIndexOfBirth', 'SnapshotIndexOfDeath', 'SnapshotIndexOfSink', 'RmaxComoving', 'VmaxPhysical', 'LastMaxVmaxPhysical', 'SnapshotIndexOfLastMaxVmax', 'R2SigmaComoving', 'RHalfComoving', 'BoundR200CritComoving', 'BoundM200Crit', 'SpecificSelfPotentialEnergy', 'SpecificSelfKineticEnergy', 'SpecificAngularMomentum', 'InertialEigenVector', 'InertialEigenVectorWeighted', 'InertialTensor', 'InertialTensorWeighted', 'ComovingAveragePosition', 'PhysicalAverageVelocity', 'ComovingMostBoundPosition', 'PhysicalMostBoundVelocity', 'MostBoundParticleId', 'SinkTrackId']
-    # types = ['<i8', '<i8', '<f4', '<i8', '<i8', '<i4', '<f4', '<i4', '<i4', '<i4', '<i4', '<i4', '<f4', '<f4', '<f4', '<i4', '<f4', '<f4', '<f4', '<f4', '<f4', '<f4', '<f4', '<f4', '<f4', '<f4', '<f4', '<f4', '<f4', '<f4', '<f4', '<i8', '<i8']
-    if props is None: props = validnames
-    props = np.atleast_1d(props)
-    indx       = np.isin(props, validnames)
-    if np.sum(indx) != len(indx): logging.warning('The following properties %s is not available, which has been removed from the output array.'%props[~indx])
-    props   = props[indx]
+
+    have_veldisp = True
+    hdr_names = ['ngroups', 'totngroups', 'nids', 'totnids',  'ntask',  'nsubs', 'totnsubs'] 
+    hdr_types = [np.uint32,  np.uint64,np.uint32, np.uint64,np.uint32,np.uint32,  np.uint64]
+    grp_names =  ['group_len', 'group_offset', 'group_nr', 'group_cm', 'group_vel', 'group_pos', 'group_m_mean200', 'group_m_crit200', 'group_m_tophat200', 'group_veldisp']
+    grp_types =  [  np.uint32,      np.uint32,  np.uint64]+     [np.dtype((np.float32,3))]*3    +   [np.float32]*4 
+    if have_veldisp:  grp_names = grp_names + ['group_veldisp_mean200', 'group_veldisp_crit200', 'group_veldisp_tophat200']
+    if have_veldisp:  grp_types = grp_types + [np.float32]*3 
+    grp_names = grp_names + ['group_nsubs', 'group_firstsub'] 
+    grp_types = grp_types + [    np.uint32,        np.uint32]
+    sub_names =  ['sub_len', 'sub_offset', 'sub_grnr',  'sub_nr', 'sub_pos', 'sub_vel', 'sub_cm', 'sub_spin'] 
+    sub_types =  [np.uint32,    np.uint32, np.uint64, np.uint64]+  [np.dtype((np.float32,3))]*4   
+    sub_names =  sub_names + ['sub_veldisp', 'sub_vmax', 'sub_vmaxrad', 'sub_halfmassrad', 'sub_ebind', 'sub_pot', 'sub_parent', 'sub_idbm'] 
+    sub_types =  sub_types + [ np.float32]*5 + [np.uint32, np.uint64] 
+
+
+    if props is None: props = hdr_names + grp_names + sub_names 
+    props     = np.atleast_1d(props)
+    hdr_names = np.atleast_1d(hdr_names)
+    grp_names = np.atleast_1d(grp_names)
+    sub_names = np.atleast_1d(sub_names)
+    indx_hdr  = np.isin(hdr_names, props); 
+    indx_grp  = np.isin(grp_names, props);
+    indx_sub  = np.isin(sub_names, props); 
+
+    #if np.sum(indx) != len(indx): 
+    #    logging.warning('The following properties %s is not available, which has been removed from the output array.'%props[~indx])
+    #props   = props[indx]
     filenum = np.atleast_1d(filenum)
 
     if len(filenum) == 0:
         logging.warning('The files of snapnum == %s are not found, return [].'%snapnum)
         return np.array([])
 
-    branchs = []
+
+    branch_headers = []; branch_grps = []; branch_subs = []; 
     for ifile in filenum:
-        filename  = os.path.join(datadir, 'groups_' + str(snapnum).zfill(3), 'subhalo_tab_%s.%s'%(snapnum, filenum))
-        grp_= subfind_catalog(filename)
-    	for block in blocks:
-            DATAALL[block]  = getattr(grp_, block)
-            DATATYPE[block] = getattr(grp_, block).dtype
+        filename  = os.path.join(datadir, 'groups_' + str(snapnum).zfill(3), 'subhalo_tab_%s.%s'%(snapnum, ifile))
+        f = open(filename,'rb')
+        header   = np.zeros(   1,dtype={names=hdr_names,formats=hdr_types})
+
+        # >>> read header infomation  
+        #
+        for hdr_name, hdr_type in zip(hdr_names, hdr_types): 
+            header[hdr_name]  = np.fromfile(f, dtype=hdr_type, count=1)[0] 
+        branch_headers.append(header[ hdr_names[indx_hdr] ]) 
+
+        # >>> read halo/subhalo infomation 
+        #
+        ngrp = header['ngroups'] 
+        nsub = header['nsubs']
+        arr_grp  = np.zeros(ngrp,dtype={names=grp_names, formats=grp_types})
+        arr_sub  = np.zeros(nsub,dtype={names=sub_names, formats=sub_types})
+
+        if ngrp > 0:    #--->>> read halo 
+            for  grp_name,  grp_type in zip(grp_names,   grp_types): 
+                arr_grp[grp_name]  = np.fromfile(f, dtype= grp_type, count=ngrp) 
+        if nsub > 0:    #--->>> read subhalo 
+            for  sub_name,  sub_type in zip(sub_names,   sub_types): 
+                arr_sub[sub_name]  = np.fromfile(f, dtype= sub_type, count=nsub) 
+        branch_grps.append(arr_grp[ grp_names[indx_grp] ]) 
+        branch_subs.append(arr_sub[ sub_names[indx_sub] ])
+        
+        curpos = f.tell()
+        f.seek(0,os.SEEK_END)
+        if curpos != f.tell():
+            print("Warning: finished reading before EOF for file",filenum)
+        f.close()
+
+    branch_headers  = np.concatenate(branch_headers, axis = 0)
+    branch_grps     = np.concatenate(branch_grps, axis = 0)
+    branch_subs     = np.concatenate(branch_subs, axis = 0)
+    return branch_headers, branch_grps, branch_subs
+
 
 
 def fullsky_z2_filenum(snapnum, datadir = jiutian_home + './M1000/lightcones/fullsky_z2/'): 
