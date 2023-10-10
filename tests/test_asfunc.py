@@ -7,7 +7,6 @@ def test_asfunc():
     print(surveyavail)
     assert len(surveyavail) != 0
     vetomap, nside = asfunc.skycov_healpy('desidr9')
-
     # generate random sample inside the pix 
     pix     = np.arange(12*nside*nside)
     pix_ngc = pix[vetomap>0]
