@@ -30,8 +30,8 @@ def skycov_healpy(surveyname):
     ----------
     surveyname: str 
 	name of preset survey, 'desidr9', 'hscdr3', 'csstv0'
-	- surveyname == 'desidr9':   18350.26 deg^2, nside = 256, (pixarea = 5.246e-02 deg^2/pixel) 
-	- surveyname == 'lsdr9-ngc': , nside = 256, (pixarea = 5.246e-02 deg^2/pixel) 
+	- surveyname ==  'desidr9':   18350.26 deg^2, nside = 256, (pixarea = 5.246e-02 deg^2/pixel) 
+	- surveyname ==  'lsdr9-ngc': , nside = 256, (pixarea = 5.246e-02 deg^2/pixel) 
 	- surveyname ==  'hscdr3':   967.39 deg^2, nside = 512, (pixarea = 1.311e-02 deg^2/pixel)
 	- surveyname ==  'csstv0':  16787.94 deg^2, nside = 512  (pixarea = 1.311e-02 deg^2/pixel)  
     Returns

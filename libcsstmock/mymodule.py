@@ -24,20 +24,19 @@ def asarray(ffi, ptr, shape, **kwargs):
           .reshape(shape, **kwargs) 
     return a
 #
-@ffi.def_extern() 
-def box_filenum_jiutian_c(snapnum, filenum): 
-    snapnum = asarray( ffi, snapnum, 1)   
-    filenum = asarray( ffi, filenum, 1)   
-    from csstmock.dataio import io_jiutian
-    filenum[0] = io_jiutian.box_filenum(snapnum[0])
-
-@ffi.def_extern() 
-def box_jiutian_c(snapnum, ifile, larr, darr, nmax): 
-    snapnum = asarray( ffi, snapnum, 1)   
-    ifile   = asarray( ffi, ifile,   1)   
-    nmax    = asarray( ffi, nmax,    1)   
-    larr    = asarray( ffi, larr, (nmax[0], 5) )
-    darr    = asarray( ffi, darr, (nmax[0],20) )
+# @ffi.def_extern() 
+# def box_filenum_jiutian_c(snapnum, filenum): 
+#     snapnum = asarray( ffi, snapnum, 1)   
+#     filenum = asarray( ffi, filenum, 1)   
+#     from csstmock.dataio import io_jiutian
+#     filenum[0] = io_jiutian.box_filenum(snapnum[0])
+# @ffi.def_extern() 
+# def box_jiutian_c(snapnum, ifile, larr, darr, nmax): 
+#     snapnum = asarray( ffi, snapnum, 1)   
+#     ifile   = asarray( ffi, ifile,   1)   
+#     nmax    = asarray( ffi, nmax,    1)   
+#     larr    = asarray( ffi, larr, (nmax[0], 5) )
+#     darr    = asarray( ffi, darr, (nmax[0],20) )
 
 #------------------ start isin_survey_c
 @ffi.def_extern()
@@ -46,12 +45,18 @@ def isin_survey_c(ra, dec, n, survey, veto):
     ra        = asarray( ffi, ra,  n[0])   
     dec       = asarray( ffi, dec, n[0])   
     veto      = asarray( ffi, veto,n[0]) 
-    strsurvey = asstring(ffi, survey, length = 256, Nc = 1 ) 
-    # >>> start to read data 
-    print(strsurvey, n)
-    print(ra[:5])
-    print(dec[:5])
-    print(veto[:5])
+    strsurvey = asstring(ffi, survey, length = 256, Nc = 1 )[0] 
+    import csstmock.asfunc as asfunc
+    import healpy as hp 
+    print(strsurvey, '---') 
+    survey_available, nside_available = asfunc.skycov_avail() 
+    if strsurvey in survey_available: 
+        wht, nside = asfunc.skycov_healpy(strsurvey) 
+        ipix       = hp.ang2pix(nside, ra, dec, lonlat = True)
+        veto[:] = wht[ipix]
+    else: 
+        logging.error('%s is not available. /n Available survey is %s'%(strsurvey, survey_available))
+
 #------------------ end isin_survey_c   
 
 #------------------ start fullsky_z2_jiutian_c  

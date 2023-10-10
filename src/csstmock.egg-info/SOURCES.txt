@@ -27,3 +27,4 @@ src/csstmock/utils/starmask.py
 src/csstmock/utils/utilsdev.py
 tests/test_asfunc.py
 tests/test_basic.py
+tests/test_io_jiutian.py

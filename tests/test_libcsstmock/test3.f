@@ -8,7 +8,7 @@
         real(4), allocatable :: w(:)
 
         ngal    = 6; 
-        survey  = 'desidr9'
+        survey  = 'lsdr9'
         allocate( x(ngal), y(ngal), w(ngal) )
 
         x = [0.0, 30.0, 240.0, 120.0, 90.0, 0.0] ! ra的fortran数组

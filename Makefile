@@ -1,17 +1,14 @@
 .PHONY: test build
 
-build-gravity: build build-ifort test 
+# echo "if running on Gravity"
+# echo "module load anaconda"
+# echo "module load compiler/intel-2018 # load ifort"
+# echo "conda activate python3          # activate defualt python3 env" 
 
-build-macos: build build-gfortran test 
+all: build test 
 
 build:
 	python -m pip install -e ./
-
-build-ifort: 
-	make -C ./libcsstmock
-
-build-gfortran:
-	make -C ./libcsstmock
 
 test: 
 	pytest 

@@ -23,15 +23,19 @@ import logging
 jiutian_home = os.environ.get('JIUTIAN_HOME') 
 if jiutian_home is None: jiutian_home='/home/cossim/Jiutian/'
     
-def subhalo_filenum(snapnum, datadir = jiutian_home + './M1000/hbt/'): 
+def subhalo_filenum(snapnum, return_filelist = False, datadir = jiutian_home + './M1000/hbt/'): 
     filename  = os.path.join(datadir, str(snapnum).zfill(3), 'SubSnap_%s.*.hdf5'%(snapnum))
     filenames = glob.glob(filename)
-    filenums  = []
+    filelist  = []
     for filenum in np.arange(len(filenames)): 
         filename  = os.path.join(datadir, str(snapnum).zfill(3), 'SubSnap_%s.%s.hdf5'%(snapnum, filenum) )
         if not os.path.exists(filename): 
             logging.warning("'%s' do not exist."%filename)   
-    return len(filenames)
+        filelist.append(filename) 
+    if return_filelist: 
+        return len(filenames), filelist
+    else: 
+        return len(filenames) 
 
 def subhalo(snapnum, filenum, props = None, datadir = jiutian_home + './M1000/hbt/'):
     validnames = ['TrackId', 'Nbound', 'Mbound', 'HostHaloId', 'Rank', 'Depth', 'LastMaxMass', 'SnapshotIndexOfLastMaxMass', 'SnapshotIndexOfLastIsolation', 'SnapshotIndexOfBirth', 'SnapshotIndexOfDeath', 'SnapshotIndexOfSink', 'RmaxComoving', 'VmaxPhysical', 'LastMaxVmaxPhysical', 'SnapshotIndexOfLastMaxVmax', 'R2SigmaComoving', 'RHalfComoving', 'BoundR200CritComoving', 'BoundM200Crit', 'SpecificSelfPotentialEnergy', 'SpecificSelfKineticEnergy', 'SpecificAngularMomentum', 'InertialEigenVector', 'InertialEigenVectorWeighted', 'InertialTensor', 'InertialTensorWeighted', 'ComovingAveragePosition', 'PhysicalAverageVelocity', 'ComovingMostBoundPosition', 'PhysicalMostBoundVelocity', 'MostBoundParticleId', 'SinkTrackId']
@@ -57,22 +61,26 @@ def subhalo(snapnum, filenum, props = None, datadir = jiutian_home + './M1000/hb
     return arr
 
 
-def halo_filenum(snapnum, datadir = jiutian_home + './M1000/groups/'):  
+def halo_filenum(snapnum, return_filelist = False, datadir = jiutian_home + './M1000/groups/'):  
     filename  = os.path.join(datadir, 'groups_' + str(snapnum).zfill(3), 'subhalo_tab_%s.*'%(snapnum))
     filenames = glob.glob(filename)
-    filenums  = []
+    filelist  = []
     for filenum in np.arange(len(filenames)): 
         filename  = os.path.join(datadir, 'groups_' + str(snapnum).zfill(3), 'subhalo_tab_%s.%s'%(snapnum, filenum))
         if not os.path.exists(filename): 
             logging.warning("'%s' do not exist."%filename)   
-    return len(filenames)
+        filelist.append(filename) 
+    if return_filelist: 
+        return len(filenames), filelist
+    else: 
+        return len(filenames) 
 
-def halo(snapnum, filenum, props = None, datadir = jiutian_home + './M1000/hbt/'):
+def halo(snapnum, filenum, props = None, datadir = jiutian_home + './M1000/groups/'):
 
     have_veldisp = True
     hdr_names = ['ngroups', 'totngroups', 'nids', 'totnids',  'ntask',  'nsubs', 'totnsubs'] 
     hdr_types = [np.uint32,  np.uint64,np.uint32, np.uint64,np.uint32,np.uint32,  np.uint64]
-    grp_names =  ['group_len', 'group_offset', 'group_nr', 'group_cm', 'group_vel', 'group_pos', 'group_m_mean200', 'group_m_crit200', 'group_m_tophat200', 'group_veldisp']
+    grp_names =  [ 'group_len', 'group_offset', 'group_nr', 'group_cm', 'group_vel', 'group_pos', 'group_m_mean200', 'group_m_crit200', 'group_m_tophat200', 'group_veldisp']
     grp_types =  [  np.uint32,      np.uint32,  np.uint64]+     [np.dtype((np.float32,3))]*3    +   [np.float32]*4 
     if have_veldisp:  grp_names = grp_names + ['group_veldisp_mean200', 'group_veldisp_crit200', 'group_veldisp_tophat200']
     if have_veldisp:  grp_types = grp_types + [np.float32]*3 
@@ -81,8 +89,8 @@ def halo(snapnum, filenum, props = None, datadir = jiutian_home + './M1000/hbt/'
     sub_names =  ['sub_len', 'sub_offset', 'sub_grnr',  'sub_nr', 'sub_pos', 'sub_vel', 'sub_cm', 'sub_spin'] 
     sub_types =  [np.uint32,    np.uint32, np.uint64, np.uint64]+  [np.dtype((np.float32,3))]*4   
     sub_names =  sub_names + ['sub_veldisp', 'sub_vmax', 'sub_vmaxrad', 'sub_halfmassrad', 'sub_ebind', 'sub_pot', 'sub_parent', 'sub_idbm'] 
-    sub_types =  sub_types + [ np.float32]*5 + [np.uint32, np.uint64] 
-
+    sub_types =  sub_types + [ np.float32]*6 + [np.uint32, np.uint64] 
+   # print() 
 
     if props is None: props = hdr_names + grp_names + sub_names 
     props     = np.atleast_1d(props)
@@ -106,27 +114,28 @@ def halo(snapnum, filenum, props = None, datadir = jiutian_home + './M1000/hbt/'
     branch_headers = []; branch_grps = []; branch_subs = []; 
     for ifile in filenum:
         filename  = os.path.join(datadir, 'groups_' + str(snapnum).zfill(3), 'subhalo_tab_%s.%s'%(snapnum, ifile))
-        f = open(filename,'rb')
-        header   = np.zeros(   1,dtype={names=hdr_names,formats=hdr_types})
+        f        = open(filename,'rb')
+        header   = np.zeros(   1,dtype=dict(names=hdr_names,formats=hdr_types))
 
         # >>> read header infomation  
         #
         for hdr_name, hdr_type in zip(hdr_names, hdr_types): 
             header[hdr_name]  = np.fromfile(f, dtype=hdr_type, count=1)[0] 
         branch_headers.append(header[ hdr_names[indx_hdr] ]) 
+        print(header, hdr_names) 
 
         # >>> read halo/subhalo infomation 
         #
-        ngrp = header['ngroups'] 
-        nsub = header['nsubs']
-        arr_grp  = np.zeros(ngrp,dtype={names=grp_names, formats=grp_types})
-        arr_sub  = np.zeros(nsub,dtype={names=sub_names, formats=sub_types})
+        ngrp = header['ngroups'][0]
+        nsub = header['nsubs'][0]
+        arr_grp  = np.zeros(ngrp,dtype=dict(names=grp_names, formats=grp_types))
+        arr_sub  = np.zeros(nsub,dtype=dict(names=sub_names, formats=sub_types))
 
         if ngrp > 0:    #--->>> read halo 
-            for  grp_name,  grp_type in zip(grp_names,   grp_types): 
-                arr_grp[grp_name]  = np.fromfile(f, dtype= grp_type, count=ngrp) 
+            for grp_name,  grp_type in zip(grp_names,   grp_types):
+                arr_grp[grp_name] = np.fromfile(f, dtype= grp_type, count=ngrp) 
         if nsub > 0:    #--->>> read subhalo 
-            for  sub_name,  sub_type in zip(sub_names,   sub_types): 
+            for sub_name,  sub_type in zip(sub_names,   sub_types): 
                 arr_sub[sub_name]  = np.fromfile(f, dtype= sub_type, count=nsub) 
         branch_grps.append(arr_grp[ grp_names[indx_grp] ]) 
         branch_subs.append(arr_sub[ sub_names[indx_sub] ])
@@ -142,17 +151,19 @@ def halo(snapnum, filenum, props = None, datadir = jiutian_home + './M1000/hbt/'
     branch_subs     = np.concatenate(branch_subs, axis = 0)
     return branch_headers, branch_grps, branch_subs
 
-
-
-def fullsky_z2_filenum(snapnum, datadir = jiutian_home + './M1000/lightcones/fullsky_z2/'): 
+def fullsky_z2_filenum(snapnum, return_filelist = False, datadir = jiutian_home + './M1000/lightcones/fullsky_z2/'): 
     filename  = datadir + './with_groups/fs_z2_%i_*.hdf5'%(snapnum)
     filenames = glob.glob(filename)
-    filenums  = []
+    filelist  = []
     for filenum in np.arange(len(filenames)): 
         filename  = datadir + './with_groups/fs_z2_%i_%i.hdf5'%(snapnum, filenum)
         if not os.path.exists(filename): 
-            logging.warning("'%s' do not exist."%filename)   
-    return len(filenames) 
+            logging.warning("'%s' do not exist."%filename) 
+        filelist.append(filename) 
+    if return_filelist: 
+        return len(filenames), filelist
+    else: 
+        return len(filenames) 
 
 def fullsky_z2(snapnum, filenum, props = None, datadir = jiutian_home + './M1000/lightcones/fullsky_z2/'): 
     '''

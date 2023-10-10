@@ -37,7 +37,6 @@ c------------------------------------------------------------------------------
                 end subroutine isin_survey_c
         end interface 
 
-
         integer(c_long) :: n
         integer(c_long) :: narr(1)
         real(c_float)  :: ra(n), dec(n) 
