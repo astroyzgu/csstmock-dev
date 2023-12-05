@@ -4,7 +4,7 @@ import healpy as hp
 import Corrfunc
 from matplotlib import pyplot as plt
 from scipy.spatial import KDTree
-import os
+import os 
 
 def angular_density(a, d, max_sep = None, k = None):
     from scipy.spatial import KDTree
@@ -642,82 +642,83 @@ class cftools(object):
 
         return DRang_IW_jkmat
 
-def upweight_healpy(ra, dec, iszspec, nside): 
-    '''
-    
-    ''' 
-    ra   = np.atleast_1d(ra)
-    dec  = np.atleast_1d(dec)
-    iszspec  = np.atleast_1d(iszspec)
-
-    hpwht1 = np.zeros( 12*nside*nside)*0.0
-    hpwht2 = np.zeros( 12*nside*nside)*0.0
-    hpwht  = np.zeros( 12*nside*nside)*0.0
-    
-    ipix2  = hp.ang2pix(nside, ra, dec, lonlat = True) 
-    ipix1  = ipix2[iszspec]
-
-    uniq_ipix1, count1 = np.unique(ipix1, return_counts = True )
-    uniq_ipix2, count2 = np.unique(ipix2, return_counts = True )
-    
-    hpwht1[uniq_ipix1] = count1
-    hpwht2[uniq_ipix2] = count2
-
-    nonzeros = hpwht1 != 0.0
-    hpwht[nonzeros] = 1.0*hpwht2[nonzeros]/hpwht1[nonzeros]
-
-    ipix         = ipix2.copy() 
-    new_w        = hpwht[ipix2]
-    new_iszspec  = iszspec.copy() 
-
-    return ipix, new_w, new_iszspec
-
-def upweight_nearest(data, indx, w = None, max_sep = 180): 
-    '''
-    data: xyz 
-    indx: array-like, bool
-        galaxies are assigned, if True
-    w: weight, if None, all galaxies are weighted by 1. 
-    '''
-    #u = gala[:,0]; v = gala[:,1]; r = gala[:,2]; w = gala[:,3]
-    #x = 1.0*np.cos(v/180.0*np.pi)*np.cos(u/180.0*np.pi)
-    #y = 1.0*np.cos(v/180.0*np.pi)*np.sin(u/180.0*np.pi)
-    #z = 1.0*np.sin(v/180.0*np.pi)
-    #xyz  = np.vstack([x, y, z]).T
-    if (np.ndim(data)==2): 
-        if np.shape(data)[1] != 3: raise ValueError('The shape of data is not (N,3)') 
-    else: 
-        raise ValueError('The shape of data is not (N,3)') 
+class upwht(object):
+    def __init__(): 
+        pass 
+    def upweight_healpy(data, indx, nside): 
+        '''
         
-    if w is None: w = data[:,0]*0+1 
-    r   = np.sqrt( np.sum(data**2, axis = 1) ) 
-    xyz = data/r.reshape(-1,1)
-    # print(np.shape(xyz), np.shape(r))
-    max_sep = 2*np.sin(0.5*max_sep*np.pi/180); # 角度转为弧度转为对应笛卡尔坐标下的直线距离
-    #------------------------------------------------------------
-    ngal  = np.shape(data)[0]
-    
-    index = np.zeros(ngal).astype(bool) 
-    igal = np.arange(ngal)
-    index[indx]  = True
-    igal1 = igal[ index]; #  有光谱的样本编号（igal1）
-    igal2 = igal[~index]; # 没有光谱的样本编号(igal2)
+        ''' 
+        if (np.ndim(data)==2): 
+            if np.shape(data)[1] != 3: raise ValueError('The shape of data is not (N,3)') 
+        else: 
+            raise ValueError('The shape of data is not (N,3)') 
 
-    kd   = KDTree(   xyz[ index])
-    d, i = kd.query( xyz[~index], k = 1, workers = -1)
-    select = d < max_sep;
-    igal2_ = igal2[   select  ] # 符合条件的，没有有光谱的样本编号, indx[igal2_] === False
-    igal1_ = igal1[ i[select] ] # 符合条件的，有光谱的样本编号,    indx[igal1_] === True 
+        hpwht1 = np.zeros( 12*nside*nside)*0.0
+        hpwht2 = np.zeros( 12*nside*nside)*0.0
+        hpwht  = np.zeros( 12*nside*nside)*0.0
+        
+        ipix1  = hp.vec2pix(nside, data[indx,0], data[indx,1], data[indx,2]) 
+        ipix2  = hp.vec2pix(nside, data[:,0], data[:,1], data[:,2]) 
+        
+        uniq_ipix1, count1 = np.unique(ipix1, return_counts = True )
+        uniq_ipix2, count2 = np.unique(ipix2, return_counts = True )
+        
+        hpwht1[uniq_ipix1] = count1
+        hpwht2[uniq_ipix2] = count2
 
-    # upweighting by nearby untargetwed objects (igal1_, igal2_)
-    #w      = np.array([1,1,0.5,1])*1.0
-    #igal1_ = np.array([0,0,1,3])#*1.0
-    #igal2_ = np.array([1,1,2,1])#*1.0
+        nonzeros = hpwht1! = 0.0
+        hpwht[nonzeros] = 1.0*hpwht2[nonzeros]/hpwht1[nonzeros]
+        neww  = hpwht[ipix2]
+
+        return neww, indx
     
-    newwht    = w.copy()
-    for i1, i2 in zip(igal1_,igal2_):
-        newwht[i1] = newwht[i1] + w[i2]
-    return newwht, index
+    def upweight_nearest(data, indx, w = None, max_sep = 180): 
+        '''
+        data: xyz 
+        indx: array-like, bool
+            galaxies are assigned, if True
+        w: weight, if None, all galaxies are weighted by 1. 
+        '''
+        #u = gala[:,0]; v = gala[:,1]; r = gala[:,2]; w = gala[:,3]
+        #x = 1.0*np.cos(v/180.0*np.pi)*np.cos(u/180.0*np.pi)
+        #y = 1.0*np.cos(v/180.0*np.pi)*np.sin(u/180.0*np.pi)
+        #z = 1.0*np.sin(v/180.0*np.pi)
+        #xyz  = np.vstack([x, y, z]).T
+        if (np.ndim(data)==2): 
+            if np.shape(data)[1] != 3: raise ValueError('The shape of data is not (N,3)') 
+        else: 
+            raise ValueError('The shape of data is not (N,3)') 
+            
+        if w is None: w = data[:,0]*0+1 
+        r   = np.sqrt( np.sum(data**2, axis = 1) ) 
+        xyz = data/r.reshape(-1,1)
+        # print(np.shape(xyz), np.shape(r))
+        max_sep = 2*np.sin(0.5*max_sep*np.pi/180); # 角度转为弧度转为对应笛卡尔坐标下的直线距离
+        #------------------------------------------------------------
+        ngal  = np.shape(data)[0]
+        
+        index = np.zeros(ngal).astype(bool) 
+        igal = np.arange(ngal)
+        index[indx]  = True
+        igal1 = igal[ index]; #  有光谱的样本编号（igal1）
+        igal2 = igal[~index]; # 没有光谱的样本编号(igal2)
+
+        kd   = KDTree(   xyz[ index])
+        d, i = kd.query( xyz[~index], k = 1, workers = -1)
+        select = d < max_sep;
+        igal2_ = igal2[   select  ] # 符合条件的，没有有光谱的样本编号, indx[igal2_] === False
+        igal1_ = igal1[ i[select] ] # 符合条件的，有光谱的样本编号,    indx[igal1_] === True 
+
+        # upweighting by nearby untargetwed objects (igal1_, igal2_)
+        #w      = np.array([1,1,0.5,1])*1.0
+        #igal1_ = np.array([0,0,1,3])#*1.0
+        #igal2_ = np.array([1,1,2,1])#*1.0
+        
+        newwht    = w.copy()
+        for i1, i2 in zip(igal1_,igal2_):
+            newwht[i1] = newwht[i1] + w[i2]
+        return newwht, index
 
     def assignz_nearest(data, indx, z = None, max_sep = 180): 
         if (np.ndim(data)==2): 
