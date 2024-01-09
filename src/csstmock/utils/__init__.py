@@ -6,6 +6,7 @@ from .mockimg import *
 from .mcompl import *
 from .random import * 
 from .pipe import * 
+from .tpcf import * 
 # import numpy as np
 # import logging 
 # import matplotlib.pyplot as plt

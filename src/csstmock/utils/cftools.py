@@ -507,7 +507,6 @@ class cftools(object):
         corr = corr.reshape(nrpbins, npibin)
         # wp
         corr = 2*np.sum( corr.reshape(nrpbins, npibin), axis = 1 )
-
         # convert_rp_pi_counts_to_wp
         #     wp = convert_rp_pi_counts_to_wp(Ndata, Ndata, Nrand, Nrand,
         #                                  DD_counts, DR_counts,

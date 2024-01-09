@@ -1,15 +1,9 @@
 '''
 This "io_jiutian" module is writen for extracting data from Jiutian simulation. 
 
-collect4csstmock: perpare data for the construction of mock catalog.  
+origin version: /home/cossim/Jiutian/M1000/code/python_script_for_hjx
 
-read_groups:  extract halo/subhalo informations of one snapshot from all subfind group files.
-
-read_hbt: read subhalo information of one snapshot from all SubSnap files. 
-
-nexthaloid: determine the host halo id in next snapshot.
-
-Wirtten by Qingyang Li, Yizhou Gu (2022/11) 
+Wirtten by Qingyang Li, Yizhou Gu (2023/11) 
 ''' 
 
 import glob
@@ -98,7 +92,7 @@ def halo(snapnum, filenum, props = None, datadir = jiutian_home + './M1000/group
     grp_names = np.atleast_1d(grp_names)
     sub_names = np.atleast_1d(sub_names)
     indx_hdr  = np.isin(hdr_names, props); 
-    indx_grp  = np.isin(grp_names, props);
+    indx_grp  = np.isin(grp_names, props); 
     indx_sub  = np.isin(sub_names, props); 
 
     #if np.sum(indx) != len(indx): 
@@ -238,6 +232,20 @@ def fullsky_z2(snapnum, filenum, props = None, datadir = jiutian_home + './M1000
     arr  = np.concatenate(branchs, axis = 0) 
     return arr
 
+
+'''
+This "io_jiutian" module is writen for extracting data from Jiutian simulation. 
+
+collect4csstmock: perpare data for the construction of mock catalog.  
+
+read_groups:  extract halo/subhalo informations of one snapshot from all subfind group files.
+
+read_hbt: read subhalo information of one snapshot from all SubSnap files. 
+
+nexthaloid: determine the host halo id in next snapshot.
+
+Wirtten by Qingyang Li, Yizhou Gu (2022/11) 
+''' 
 
 def read_hbt_head(filename):
     '''

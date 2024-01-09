@@ -10,7 +10,7 @@ def test_io_jiutian():
     filenum  = io_jiutian.subhalo_filenum(snapnum) 
     arr      = io_jiutian.subhalo(snapnum, [0, 1]) 
     filenum, filelst  = io_jiutian.halo_filenum(snapnum, return_filelist = True) 
-    hdr,grp,sub = io_jiutian.halo(snapnum, [0, 1]) 
+    hdr,grp,sub       = io_jiutian.halo(snapnum, [0, 1]) 
     subfind = io_jiutian.subfind_catalog(filelst[1]) 
     #print(subfind.sub_idbm[-5:])
     #print(sub['sub_idbm'][-5:] ) 
