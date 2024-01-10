@@ -177,7 +177,7 @@ class sphrand():
         nrand_ = 0
         RA = []; DEC = []
         while nrand_ < nrand:
-            arand, drand = sphrand.generand_lonlat(n, lonra = [ramin, ramax], latra = [decmin, decmax], seed = seed)
+            arand, drand = sphrand.generand_lonlat(nrand, lonra = [ramin, ramax], latra = [decmin, decmax], seed = seed)
             # arand, drand, __skycov__ = sphrand_uniform( int(nrand*1.2), ramin, ramax, decmin, decmax)
             pix_rand = hp.ang2pix(nside, arand, drand, lonlat = True) 
             indx     = np.isin(pix_rand, pix)
