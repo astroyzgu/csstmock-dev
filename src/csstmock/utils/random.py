@@ -1,5 +1,6 @@
 import numpy  as np 
 import healpy as hp 
+
 def mvpoints_vector(vec, from_vec, to_vec):   
     '''
     This function moves points following the rotation from one point (from_vec) to another (to_vec).
@@ -57,6 +58,52 @@ class sphrand():
     '''
     This class generates random points on a sphere.
     '''
+    def generand_healpy(nrand, nside, pix):  #, ramin = None, ramax = None, decmin = None, decmax = None): 
+        ''' 
+        Draw a random sample with uniform distribution on the given region of a sphere defined by healpix. 
+
+        Parameters
+        ----------
+        nrand : int
+            the number of the random points to return
+        nside: int 
+            nside of the healpy pixelization 
+        pix: ndarray, int 
+            pixel number(s)
+        Returns
+        -------
+        ra, dec : ndarray
+            the random sample on the sphere within the given region defined by healpix.
+            arrays have shape equal to nrand.
+        skycov: float 
+            sky coverage [deg^2].
+        '''
+        pix      = np.asarray(pix).astype(int)
+        pixarea  = hp.nside2pixarea(nside, degrees = True)
+        skycov_healpy = pixarea*len(pix) 
+        
+        lon, lat = hp.pix2ang(nside, pix, lonlat = True)
+        indx_box = np.hstack([np.argmax(lon), np.argmin(lon), np.argmax(lat), np.argmin(lat)])
+        vec      = hp.boundaries(nside, pix[indx_box], step = 1)
+        lon, lat = hp.vec2ang(vec, lonlat = True) 
+        ramax  = np.max(lon); ramin  = np.min(lon) 
+        decmax = np.max(lat); decmin = np.min(lat)
+        nrand_ = 0
+        RA = []; DEC = []
+        while nrand_ < nrand:
+            arand, drand, __skycov__ = sphrand_uniform( int(nrand*1.2), ramin, ramax, decmin, decmax)
+            pix_rand = hp.ang2pix(nside, arand, drand, lonlat = True) 
+            indx     = np.isin(pix_rand, pix)
+            nrand_ = nrand_ + np.sum(indx)
+            RA.append( arand[indx]) 
+            DEC.append(drand[indx]) 
+            print('Generating %s random points. Targeting --> %s.'%(nrand_, nrand) )
+        RA   = np.hstack(RA)
+        DEC  = np.hstack(DEC)
+        indx = np.arange(nrand).astype('int') # , replace = False)
+        return RA[indx], DEC[indx] 
+    
+
     def generand_lonlat(n, lonra = [-180, 180], latra = [-90, 90], seed = None):
         """
         This function generates random points on a sphere using the Lambert azimuthal equal-area projection.
