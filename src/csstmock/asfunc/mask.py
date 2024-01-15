@@ -92,6 +92,9 @@ def ellipse_masking(ra, dec, u, v, a, pa, ba):
 
     u   = np.atleast_1d(u) 
     v   = np.atleast_1d(v) 
+    if isinstance(a,  (int, float)): a   = u*0.0 + a 
+    if isinstance(pa, (int, float)): pa  = u*0.0 + pa 
+    if isinstance(ba, (int, float)): ba  = u*0.0 + ba 
     a   = np.atleast_1d(a) 
     pa  = np.atleast_1d(pa) 
     ba  = np.atleast_1d(ba) 

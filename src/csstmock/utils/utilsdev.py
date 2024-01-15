@@ -3,6 +3,7 @@ import logging
 import matplotlib.pyplot as plt
 from astropy.cosmology import FlatLambdaCDM
 from scipy.interpolate import interp1d
+from scipy.spatial import KDTree
 
 def fracndim(data, bin_list = None, mask = None):
     return fracndim2(data, bin_list = bin_list, mask = mask)

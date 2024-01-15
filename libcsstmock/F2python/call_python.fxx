@@ -1,0 +1,73 @@
+        subroutine python_assign3(ra,dec,zmag,ww,Ndata)
+ 
+        use, intrinsic :: iso_c_binding ! Fortran内部定义的和C语言类型互通的模块iso_c_binding
+        implicit none
+
+        interface  
+         subroutine assignwht2(x, nx, y, ny, zmag, nzmag, 
+     &  str1, w, nw) bind (c)
+             use iso_c_binding
+             integer(c_int) :: nx
+             integer(c_int) :: ny
+             integer(c_int) :: nw
+             integer(c_int) :: nzmag
+             real(c_double) :: zmag(nx)
+             real(c_double) :: x(nx)
+             real(c_double) :: y(ny)
+             real(c_double) :: w(nw)
+             character(c_char) :: str1
+         end subroutine assignwht2
+         subroutine assignwht(x, nx, y, ny, str1, w, nw) bind (c)
+             use iso_c_binding
+             integer(c_int) :: nx
+             integer(c_int) :: ny
+             integer(c_int) :: nw
+             real(c_double) :: x(nx)
+             real(c_double) :: y(ny)
+             real(c_double) :: w(nw)
+             character(c_char) :: str1
+         end subroutine assignwht
+
+         subroutine assignwht2file(x, nx, y, ny, str1, str2) bind (c)
+             use iso_c_binding
+             integer(c_int) :: nx
+             integer(c_int) :: ny
+             real(c_double) :: x(nx)
+             real(c_double) :: y(ny)
+             character(c_char) :: str1
+             character(c_char) :: str2
+         end subroutine assignwht2file
+
+         subroutine assignwht_plot(x, nx, y, ny, str1, str2) bind (c)
+             use iso_c_binding
+             integer(c_int) :: nx
+             integer(c_int) :: ny
+             real(c_double) :: x(nx)
+             real(c_double) :: y(ny)
+             character(c_char) :: str1
+             character(c_char) :: str2
+         end subroutine assignwht_plot
+        end interface 
+
+        integer i
+        integer ii,Ndata
+        real(c_double) :: ra(Ndata)
+        real(c_double) :: dec(Ndata)
+        real(c_double) :: zmag(Ndata)
+        real(c_double) :: ww(Ndata)
+
+
+        character*32 :: wmap_file, output_file ! 目前只支持32个字符长 
+
+        wmap_file   = "./geo3/temp/healpy128_comp_ori.csv" !意思为将全天均分为12*128^2的小块
+c        call assignwht(ra,size(ra),dec,size(dec),wmap_file,ww,size(ww))
+        call assignwht2(ra,size(ra),dec,size(dec),zmag,size(zmag),
+     &       wmap_file,ww,size(ww))
+
+c        output_file = "./MF/skycov.eps" ! 输出文件名  
+c        call assignwht_plot(ra,size(ra),dec,size(dec),
+c     &      wmap_file,output_file)
+
+        return
+        end subroutine python_assign3 
+

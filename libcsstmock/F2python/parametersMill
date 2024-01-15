@@ -1,0 +1,35 @@
+DESIDR9                                        ! observation name(DESIDR9/SDSSDR7/CSST/)
+18.0                                           ! apparent magnitude limit
+0.0001                                         ! minimum redshift
+0.2                                           ! maximum redshift
+N                                          !LF_sdss_Yang2009                               ! have luminosity function file? name (no = N)
+Mill                                          ! simulation catalog name (9tian/Uchuu/Mill/ELUCID)
+0                                              ! rotate the simulation box N times
+700000000                                        ! maximum number of subhalos to be read
+10                                             ! column number of the input data
+/home/xhyang/work/MOCK9tian/MGRS/data/         ! output catalog directory
+DESIDR9                                        ! sky-coverage (completeness) type (ALL/DESIDR9/SDSSDR7/CSST)
+N                                              ! generate random sample (Y/N)
+-98173219                                      ! random seed
+
+
+
+
+# comments: =================================================================================
+(1) observational data:
+    Currently we only arranged the DESI-DR9 galaxy and group catalogs. 
+
+(3) luminosity functions:
+
+    We have LFs collected from the following studies.
+    1. LF_sdss_Yang2009, the luminosity function obtained by Yang et al. 2009, ApJ, 695, 900, table 2. 
+    2. N: we will directly calculate (cumulative) luminosity functions from the input galaxy catalog. 
+
+(2) simulation data:
+    We have galaxy catalogs at z=0.0, 0.5, 1.03, 2.03 and 3.93 for 'Uchuu' simulations.
+    We have multi-redshift subhalo catalogs for '9tian' simulations.
+    We have semi-analytical galaxy catalog at z=0.0 for 'Mill' millennium simulations.
+    We have subhalo catalog at z=0.0 for 'ELUCID' simualtions.    
+
+
+

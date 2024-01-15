@@ -1,12 +1,6 @@
 import numpy as np 
 from Corrfunc.mocks import DDrppi_mocks, DDsmu_mocks 
 
-class tpcf(tpcf_corrfunc): 
-    '''
-        tools to calculate the two-point correlation function. 
-    '''
-    def __init__(self, *arg, **kwargs): 
-        super(tpcf, self).__init__(*arg, **kwargs)
 
 class tpcf_corrfunc():  
         """
@@ -118,3 +112,11 @@ class tpcf_corrfunc():
                 #corr = corr.reshape(nrpbins, npibin)
                 #corr = 2*np.sum( corr, axis = 1 )
                 return corr
+
+
+class tpcf(tpcf_corrfunc): 
+    '''
+        tools to calculate the two-point correlation function. 
+    '''
+    def __init__(self, *arg, **kwargs): 
+        super(tpcf, self).__init__(*arg, **kwargs)

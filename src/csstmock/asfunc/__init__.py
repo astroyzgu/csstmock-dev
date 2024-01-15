@@ -1,6 +1,8 @@
 from .skycov_healpy import *
 from .mask  import *
-from .fiber import * 
+from .fiber import *
+from .LSScats import * 
+
 # from .visual_old import * 
 import numpy as np 
 import healpy as hp 

@@ -1,0 +1,98 @@
+generating ./my_plugin.c
+(already up-to-date)
+the current directory is '/home/yzgu/csstmock-dev/libcsstmock/F2python/libcsstmock'
+running build_ext
+building 'my_plugin' extension
+/opt/conda/conda-4.12.0/envs/python3/bin/x86_64-conda-linux-gnu-cc -Wno-unused-result -Wsign-compare -DNDEBUG -fwrapv -O2 -Wall -Wstrict-prototypes -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -pipe -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -pipe -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe -isystem /opt/conda/conda-4.12.0/envs/python3/include -DNDEBUG -D_FORTIFY_SOURCE=2 -O2 -isystem /opt/conda/conda-4.12.0/envs/python3/include -fPIC -I/opt/conda/conda-4.12.0/envs/python3/include/python3.7m -c my_plugin.c -o ./my_plugin.o
+x86_64-conda_cos6-linux-gnu-gcc -pthread -shared -Wl,-O2 -Wl,--sort-common -Wl,--as-needed -Wl,-z,relro -Wl,-z,now -Wl,-rpath,/opt/conda/conda-4.12.0/envs/python3/lib -L/opt/conda/conda-4.12.0/envs/python3/lib -Wl,-O2 -Wl,--sort-common -Wl,--as-needed -Wl,-z,relro -Wl,-z,now -Wl,-rpath,/opt/conda/conda-4.12.0/envs/python3/lib -L/opt/conda/conda-4.12.0/envs/python3/lib -Wl,-O2 -Wl,--sort-common -Wl,--as-needed -Wl,-z,relro -Wl,-z,now -Wl,--disable-new-dtags -Wl,--gc-sections -Wl,-rpath,/opt/conda/conda-4.12.0/envs/python3/lib -Wl,-rpath-link,/opt/conda/conda-4.12.0/envs/python3/lib -L/opt/conda/conda-4.12.0/envs/python3/lib -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe -isystem /opt/conda/conda-4.12.0/envs/python3/include -DNDEBUG -D_FORTIFY_SOURCE=2 -O2 -isystem /opt/conda/conda-4.12.0/envs/python3/include ./my_plugin.o -lpython3.7m -o ./libcsstplugin.a
+  Give observation name : DESIDR9sv3          
+  Apparent magnitude limit :    21.00000    
+  Give the minimum redshift :   9.9999997E-05
+  Give the maximum redshift :   2.0000000E-02
+  Give cumulative LF name (N) : LF_sdss_Yang2009                        
+  Give simulation catalog name : 9tian               
+  Rotate simulation box times :            0
+  Maximum number of simulation data :              700000000
+  Number of columns of the simulation data :                     10
+  Give output catalog directory : /home/yzgu/data/desi/mock/testpipe/     
+  Give sky-coverage (mask file) type : DESIDR9             
+  Generate random sample (Y/N) : N
+  Give random seed:    -98173219
+  Only need make the match: N
+  Only for test snapshot: N
+  Simulation box size :    1000.000    
+  Omega_m :   0.3111000    
+  Omega_Lambda :   0.6889000    
+  Output file name : mockDESIDR9sv3_9tian0_z0.0_0.0          
+ Redshift range  9.9999997E-05  2.0000000E-02  0.2999300       59.71891    
+ Input galaxy luminosity function OK.
+ z_eff in Nzbin:  9.9999997E-05  2.0000000E-02  3.2377043E-03  6.6612270E-03
+  1.0427878E-02  1.4305027E-02  1.8225471E-02
+  
+ 9tian snapshots:         127         124  0.0000000E+00  3.0470848E-02
+#-------------------------
+# recive the snapshot number: 127 
+Reading 2400 hbt divisions of 127th snapshot with 72 threads
+Reading 5120 groups divisions of 127th snapshot with 72 threads
+  
+ Snapshot         127             460267974
+             363043856                     0            1345570266
+   944.619995117188        994.809814453125        985.787963867188     
+   667.892456054688        194.936477661133        309.134979248047     
+   9.93261538956892        9.87191772460938        9.87191772460938     
+   20.0070877075195     
+ Min and Max log Mst or L:   9.871918       15.32633    
+ Luminosity assignment in cubic box with scatter.
+ Min and Max log Mst or L:   6.000000       12.28431    
+ Luminosity assignment in cubic box done.
+reading 127th snapshots time is 324.887 s
+reading the snapshot takes 434.847 s in total
+460267974 (460267974, 10) float64 (460267974, 3) int64
+#-------------------------
+# recive the snapshot number: 126 
+Reading 2400 hbt divisions of 126th snapshot with 72 threads
+Reading 5120 groups divisions of 126th snapshot with 72 threads
+  
+ Snapshot         126  9.9999997E-05  9.7786188E-03             461838891
+             345872891                     0            1344281407
+   924.618957519531        900.463623046875        994.768005371094     
+   623.665222167969        224.443389892578        214.868667602539     
+   9.95109879526293        9.91331005096436        9.91331005096436     
+   24.3827743530273     
+ Min and Max log Mst or L:   9.871918       15.32618    
+ Luminosity assignment in cubic box with scatter.
+ Min and Max log Mst or L:   6.000000       12.23628    
+ Luminosity assignment in cubic box done.
+ TrankID range:             1345570266                     0
+ Redshift range  9.9999997E-05  9.7786188E-03  0.2999300       29.26867    
+ Total                 39732  subhalos in the snapshot redshift range.
+ Total subhalos selected in the redshift range:                 16774
+  
+reading 126th snapshots time is 580.952 s
+reading the snapshot takes 687.380 s in total
+461838891 (461838891, 10) float64 (461838891, 3) int64
+#-----start python ---
+desidr9 Ngalmax =  39732 Ngal =  39732
+First 6 of x: [55.07920074 56.95487976 57.11505127 62.99918365 63.72117996 56.66759491]
+First 6 of y: [-62.19425964 -18.60861015 -34.25175095  21.54719734  34.62413406
+ -12.50371265]
+Only assign the first Ngal (= 39732) galaxies. The rest of them are invalid.
+First 6 of w: [1. 1. 1. 0. 0. 1.]
+#-----end  python ---
+#-------------------------
+# recive the snapshot number: 125 
+Reading 2400 hbt divisions of 125th snapshot with 72 threads
+Reading 5120 groups divisions of 125th snapshot with 72 threads
+  
+ Snapshot         125  9.7786188E-03  1.9932508E-02             463085807
+             431194191                     0            1343004995
+   944.095947265625        998.122558593750        974.241699218750     
+   685.980041503906        503.149017333984        484.612243652344     
+   9.87191754921531        9.87191772460938        9.87191772460938     
+   22.6380805969238     
+ Min and Max log Mst or L:   9.871918       15.32486    
+ Luminosity assignment in cubic box with scatter.
+ Min and Max log Mst or L:   6.000000       12.24641    
+ Luminosity assignment in cubic box done.
+ TrankID range:             1344281407                     0
+ Redshift range  9.7786188E-03  1.9932508E-02   29.26867       59.51829    

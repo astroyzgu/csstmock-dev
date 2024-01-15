@@ -1,0 +1,13 @@
+#PBS -N DESI_MGRS
+#PBS -l nodes=1:ppn=1
+#PBS -l walltime=3:00:00
+#PBS -l mem=300gb
+#PBS -q debug
+
+###Set python environment###
+
+#job start
+
+cd /home/xhyang/work/MOCK9tian/MGRS/code/F2python
+./make.python
+

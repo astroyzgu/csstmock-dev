@@ -6,6 +6,27 @@ from matplotlib import pyplot as plt
 from scipy.spatial import KDTree
 import os 
 from astropy.table import Table 
+import pymangle
+class pipe_LSScats(): 
+    def __init__(combmask, ra, dec): 
+        '''
+        '''
+    def isin_survey(combmask, ra, dec):  
+        mangle     = pymangle.Mangle(combmask) 
+        # area_sqdeg = mangle.get_area() 
+        indx       = mangle.contains(ra, dec)
+        return indx #, area_sqdeg
+    
+    def get_areas(combmask): 
+        areas_sqdeg = mangle.get_areas() 
+        return areas_sqdeg 
+    
+    def polyid(combmask, ra, dec): 
+        mangle     = pymangle.Mangle(combmask) 
+        # indx       = mangle.contains(ra, dec)
+        ipoly        = mangle.polyid(ra,dec)
+        return ipoly 
+    
 class pipe(object):  
     def pipe_asfunc(ra, dec, iszspec, targetid = None, zspec = None, zphot = None, outputdir = './output/', outputfmt = 'txt'):
         '''

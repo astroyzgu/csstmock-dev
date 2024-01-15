@@ -1,0 +1,35 @@
+rm a.out
+
+module load compiler/intel-2018
+
+#module load anaconda/anaconda3
+#source activate
+#conda deactivate
+#conda activate my_anaconda
+#python geo3/builder.py # 生成库文件libplugin.so(linux)和libplugin.dylib(Macos)
+
+cd libcsstmock
+module load anaconda 
+source activate
+conda deactivate 
+module load anaconda 
+source activate python3 
+python build.py
+ifort -fPIC -shared -o libcsstmock.so io_jiutian.f libcsstplugin.a
+export PYTHONPATH=$PYTHONPATH:$(pwd)
+export LIBRARY_PATH=$LIBRARY_PATH:$(pwd)
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)
+export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$(pwd)
+cd ..
+
+export PYTHONPATH=$PYTHONPATH:$pwd
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$pwd # 将库文件的路径添加进来
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)
+export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$(pwd)
+
+ifort -O3 -mcmodel=medium -fopenmp -parallel *.f -lcsstmock 
+#ifort -O3 -L./geo3 -lplugin -L./libcsstmock -lcsstmock -fopenmp -parallel *.f
+#gfortran -O3 -L./geo3 -lplugin -mcmodel=medium -fopenmp *.f
+
+./a.out 
+

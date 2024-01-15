@@ -1,0 +1,8 @@
+rm a.out
+
+module load compiler/intel-2018
+module load compiler/intel-2018u3
+
+ifort -O3 -mcmodel=medium -fopenmp -parallel *.f
+
+./a.out 

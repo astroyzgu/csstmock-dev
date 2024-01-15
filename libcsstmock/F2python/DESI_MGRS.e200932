@@ -1,0 +1,19 @@
+=>> PBS: job killed: walltime 345643 exceeded limit 345600
+forrtl: error (78): process killed (SIGTERM)
+Image              PC                Routine            Line        Source             
+libifcoremt.so.5   00002B1F1E989F3F  for__signal_handl     Unknown  Unknown
+libpthread-2.17.s  00002B1F20E876D0  Unknown               Unknown  Unknown
+libpthread-2.17.s  00002B1F20E83993  pthread_cond_wait     Unknown  Unknown
+libomp.so          00002B1F1E3D0DEA  Unknown               Unknown  Unknown
+libomp.so          00002B1F1E3A4486  Unknown               Unknown  Unknown
+libomp.so          00002B1F1E3A4DCA  Unknown               Unknown  Unknown
+libomp.so          00002B1F1E3AC44C  Unknown               Unknown  Unknown
+libomp.so          00002B1F1E37E3B3  Unknown               Unknown  Unknown
+libomp.so          00002B1F1E381951  Unknown               Unknown  Unknown
+libomp.so          00002B1F1E371777  __kmpc_fork_call      Unknown  Unknown
+a.out              000000000041D408  Unknown               Unknown  Unknown
+a.out              000000000040ECBD  Unknown               Unknown  Unknown
+a.out              000000000041B386  Unknown               Unknown  Unknown
+a.out              000000000040183E  Unknown               Unknown  Unknown
+libc-2.17.so       00002B1F210B6445  __libc_start_main     Unknown  Unknown
+a.out              0000000000401749  Unknown               Unknown  Unknown
