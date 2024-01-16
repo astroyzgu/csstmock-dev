@@ -5,6 +5,43 @@ from astropy.cosmology import FlatLambdaCDM
 from scipy.interpolate import interp1d
 from scipy.spatial import KDTree
 
+def histogram_bootstrap(a, bins=10, bootstrap = None, range=None, density=None, weights=None): 
+    """
+    This function is a wrapper for numpy's histogram function, adding a bootstrap parameter for bootstrap resampling.
+
+    Parameters:
+    a (array_like): Input data, will be converted into a one-dimensional array.
+    bins (int, optional): The number of bins for the histogram, default is 10.
+    bootstrap (int, optional): The number of bootstrap resamples. If None, no bootstrap resampling is performed. Default is None.
+    range (tuple, optional): The range of the histogram. Default is None.
+    density (bool, optional): If True, the returned histogram is normalized by dividing by the bin width and the number of observations, so that the integral under the histogram is 1. Default is None.
+    weights (array_like, optional): The weights for each value in the input data. Default is None.
+
+    Returns:
+    hist (ndarray): The values of the histogram. 
+        If bootstrap is not None, returns a 2D array where each row is a bootstrap resample of the histogram.
+    edges (ndarray): The bin edges of the histogram.
+    """
+    a    = np.atleast_1d(a)
+    ndat = len(a)
+    hist, edges = np.histogram(a, bins, range = range, density = density, weights=weights)
+    if bootstrap is not None: 
+        rand = np.random.randint(0, ndat, size = (ndat, bootstrap))
+        dat2d= a[rand]
+        dat2d[:,0] = a
+        if weights is not None: 
+            weights   = np.atleast_1d(weights)
+            weights2d      = weights[rand]
+            weights2d[:,0] = weights
+        phi_n  = []; 
+        for ii in np.arange(bootstrap): 
+            hist, edges = np.histogram(dat2d[:,ii], bins = bins, range = range, density = density, weights = weights2d[:,ii])
+            phi_n.append(hist) 
+        phi_n = np.vstack(phi_n).T 
+        return phi_n, edges 
+    else: 
+        return hist,  edges 
+    
 def fracndim(data, bin_list = None, mask = None):
     return fracndim2(data, bin_list = bin_list, mask = mask)
 
