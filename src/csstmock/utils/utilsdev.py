@@ -5,6 +5,23 @@ from astropy.cosmology import FlatLambdaCDM
 from scipy.interpolate import interp1d
 from scipy.spatial import KDTree
 
+def groupbysum(groupbyid, weights): 
+    """
+    This function calculates the sum of weights for each unique group ID.
+
+    Parameters:
+    groupbyid (numpy array): A numpy array containing group IDs.
+    weights   (numpy array): A numpy array containing weights corresponding to each group ID.
+
+    Returns:
+    uniq_id  (numpy array): A numpy array of unique group IDs.
+    sumofwht (numpy array): A numpy array of the sum of weights for each unique group ID.
+    """
+    uniq_id    = np.sort( np.unique(groupbyid) )
+    bins       = np.append(uniq_id, uniq_id[-1]+1)
+    sumofwht, edges = np.histogram(groupbyid, weights=weights, bins=bins)
+    return uniq_id, sumofwht
+
 def histogram_bootstrap(a, bins=10, bootstrap = None, range=None, density=None, weights=None): 
     """
     This function is a wrapper for numpy's histogram function, adding a bootstrap parameter for bootstrap resampling.

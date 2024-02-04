@@ -34,17 +34,17 @@ class tpcf_corrfunc():
 
                 nsbins  = len(bins) - 1; 
                 nmubins = int( len(DD_counts)/nsbins )
-                DD = np.array( [ DD[4]*DD[5] for DD in DD_counts] ); total_wnpairs_dd = 1.0*np.sum(DD) 
-                DR = np.array( [ DR[4]*DR[5] for DR in DR_counts] )
-                RR = np.array( [ RR[4]*RR[5] for RR in RR_counts] ); total_wnpairs_rr = 1.0*np.sum(RR) 
+                DD = np.array( [ DD[4]*DD[5] for DD in DD_counts] ); 
+                DR = np.array( [ DR[4]*DR[5] for DR in DR_counts] );
+                RR = np.array( [ RR[4]*RR[5] for RR in RR_counts] ); 
                 Ndata   = np.sum(data[:,3]); # np.shape(data)[0]; 
                 Nrand   = np.sum(rand[:,3]); # np.shape(rand)[0]; 
                 fDD = 1.0/(Ndata*Ndata-np.sum(data[:,3]**2) ); 
                 fDR = 1.0/(Ndata*Nrand)
                 fRR = 1.0/(Nrand*Nrand-np.sum(rand[:,3]**2) );
-                DD = fDD*DD;  
+                DD = fDD*DD;
                 DR = fDR*DR;
-                RR = fRR*RR;       
+                RR = fRR*RR;
                 corr = 0.0*RR; nonzero = RR != 0.0
                 corr[nonzero] = 1.0*(DD[nonzero]-2*DR[nonzero])/RR[nonzero] + 1 
                 if nmubins != 1: corr = corr.reshape(nsbins, nmubins)
