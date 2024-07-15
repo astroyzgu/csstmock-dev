@@ -1,0 +1,76 @@
+#!/usr/bin/env python
+
+#!/usr/bin/env python
+
+import os 
+import sys,string
+import numpy as np
+import argparse
+from astropy.table import Table 
+import matplotlib.pyplot as plt
+
+def get_argpars(): 
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('filename', metavar='input_catalog', type=str, 
+                        help='input file name') 
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('-n', '--number', type=int,  required = False,  
+                        help='number of random points')
+    group.add_argument('-d', '--density', type=float,  required = False,  
+                        help='number density of random points')
+    parser.add_argument('-o', '--outputfile', type=str, default = None, 
+                        help='output file', action = 'store')  
+    # print(parser.format_help())
+    # kwargs = parser.parse_args()._get_kwargs()
+    # print(kwargs)
+    return parser.parse_args()
+
+def data2rand(nside, ra_data, dec_data, factor = 1, id_data = None):
+    n_data = len(ra_data); n_rand = int(n_data*factor)
+    if id_data is None: id_data = np.arange(n_data)
+    id_rand  = np.random.choice(id_data, n_rand)
+    pix_data = hp.ang2pix(nside, ra_data, dec_data, lonlat=True); 
+    unq      = np.unique(pix_data) 
+    ra_rand, dec_rand, skycov_rand = asfunc.sphrand_healpy(n_rand, nside, unq) 
+    return ra_rand, dec_rand, id_rand
+
+import healpy as hp
+import csstmock.asfunc as asfunc
+import csstmock.utils  as utils
+
+if __name__ == '__main__': 
+    args   = get_argpars()
+    vmap   = hp.read_map(args.filename)
+    nside  = hp.npix2nside(len(vmap)) 
+    hppix  = np.arange(0, len(vmap))
+    pixarea= hp.nside2pixarea(nside, degrees=True)
+    unq    = np.unique(hppix[(~np.isinf(vmap))&(~np.isnan(vmap))&(vmap!=0)]) 
+    num_of_pix  = len(unq)
+    area   = num_of_pix*pixarea
+
+    if args.density is None: 
+        number  = args.number
+        density = 1.0*number/area 
+    else: 
+        density = args.density
+        number  = int( num_of_pix*density ) 
+    
+    print()
+    print(' set nside = %d, pixarea = %.3f deg^2'%(nside, pixarea)) 
+    print()
+    print(' %d unique pixels are valid.'%num_of_pix)
+    print()
+    print(' total area is %.3f deg^2'%(area) ) 
+    print()
+    print(' generating %d random points with %.3f deg^-2'%(number, density)) 
+    ra_rand, dec_rand, skycov_rand = asfunc.sphrand_healpy(number, nside, unq) 
+    t = Table(); 
+    t['ra']    = ra_rand; 
+    t['dec']   = dec_rand; 
+    print()
+    print(t)
+    print()
+    print(' saving into %s'%args.outputfile) 
+    t.write(args.outputfile, overwrite = True) 
+    print() 
+    print(' done.') 

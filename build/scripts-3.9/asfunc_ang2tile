@@ -1,0 +1,45 @@
+#!/Users/yzastro/miniconda3/envs/csstmock-dev/bin/python
+
+#-- 在 Unix-like 操作系统中用于指定脚本解释器的特殊语法，常见的例子有：
+#-- 1. #!/bin/bash：使用 Bash shell 来执行脚本。
+#-- 2. #!/usr/bin/env python：在环境变量PATH中查找python的安装路径，然后使用该路径下的解释器来执行脚本。
+
+import os 
+import sys,string
+import numpy as np
+import argparse
+from astropy.table import Table 
+import matplotlib.pyplot as plt
+
+def get_argpars(): 
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('-c', '--ic', type=str, required=True, 
+                        help='input catalog', action='store')
+    parser.add_argument('--radec_cols', type=int, nargs=2, required=False, default=[1,2],
+                        help='ra & dec cols of input catalog')    
+    parser.add_argument('-t', '--it', type=str, required = True, 
+                        help='input tiling file', action='store') 
+    parser.add_argument('-o', '--outputfile', type=str, default = "tile_results.fits", 
+                        help='output file', action='store')  
+    return parser.parse_args() 
+
+
+import csstmock.asfunc as asfunc
+import csstmock.utils  as utils
+if __name__ == '__main__': 
+    args = get_argpars()
+    tc   = utils.file2table(args.ic, usecols=args.radec_cols, colnames = ['ra', 'dec']) 
+    tc   = utils.auto_firstidcol(tc)
+    tt   = utils.file2table(args.it)
+    tt   = asfunc.fixtabfmt_mask(tt)
+
+    firstcol = tc[ tc.colnames[0], ]
+    counting = asfunc.ellipse_counting(tc['ra'], tc['dec'], 
+                           tt['ra'], tt['dec'], tt['sma'], 
+                           tt['pa'], tt['ba'],  tt['w']) 
+    firstcol['ntile'] = counting # counting
+    print('saving into %s'%args.outputfile) 
+    firstcol.write(args.outputfile, overwrite = True) 
+    # plt.scatter(tc['ra'], tc['dec'], c = counting, s = 1) # , counting)
+    # plt.colorbar()
+    # plt.show()

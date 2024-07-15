@@ -1,0 +1,95 @@
+#!/Users/yzastro/miniconda3/envs/csstmock-dev/bin/python
+
+#!/usr/bin/env python
+
+import os 
+import sys,string
+import numpy as np
+import argparse
+from astropy.table import Table 
+import matplotlib.pyplot as plt
+
+def get_argpars(): 
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('filename', metavar='input_catalog', type=str, 
+                        help='input file name')
+    parser.add_argument('--radeccols', type=int, nargs=2, required=False, default=[1,2],
+                        help='ra & dec cols of input catalog')    
+    parser.add_argument('--nside', type=int,  required = False, default=16, 
+                        help='nside of healpix') 
+    parser.add_argument('-o', '--outputfile', type=str, default = None, 
+                        help='output file', action = 'store')  
+    # print(parser.format_help())
+    # kwargs = parser.parse_args()._get_kwargs()
+    # print(kwargs)
+    return parser.parse_args()
+
+def cartview(vmap):
+    from healpy.newvisufunc import projview, newprojplot
+    nside = hp.npix2nside(len(vmap)) 
+    projview(
+        vmap,
+        coord=["G"],
+        graticule=True,
+        graticule_labels=True,
+        unit="surface number density [deg^-2]",
+        xlabel="longitude",
+        ylabel="latitude",
+        title='nside=%d'%nside, 
+        norm ='log', 
+        cb_orientation="vertical",
+        projection_type="cart",
+    ); 
+    plt.tight_layout()
+    plt.show()
+
+def data2rand(nside, ra_data, dec_data, factor = 1, id_data = None):
+    n_data = len(ra_data); n_rand = int(n_data*factor)
+    if id_data is None: id_data = np.arange(n_data)
+    id_rand  = np.random.choice(id_data, n_rand)
+    pix_data = hp.ang2pix(nside, ra_data, dec_data, lonlat=True); 
+    unq      = np.unique(pix_data) 
+    ra_rand, dec_rand, skycov_rand = asfunc.sphrand_healpy(n_rand, nside, unq) 
+    return ra_rand, dec_rand, id_rand
+
+import healpy as hp
+import csstmock.asfunc as asfunc
+import csstmock.utils  as utils
+
+if __name__ == '__main__': 
+    args   = get_argpars()
+    nside  = args.nside
+    tc     = utils.file2table(args.filename, usecols=args.radeccols, colnames = ['ra', 'dec']) 
+    hppix  = hp.ang2pix(nside, tc['ra'], tc['dec'], lonlat=True)
+    unq, cnt = np.unique(hppix, return_counts=True) 
+    pixarea  = hp.nside2pixarea(nside, degrees=True) 
+    area     = pixarea*len(unq)
+    vmap     = np.zeros(hp.nside2npix(nside)) - np.inf
+    vmap[unq]= cnt/pixarea
+    print()
+    print(' input %s targets'%(len(tc)) ) 
+    print()
+    print(' set nside = %d, pixarea = %.3f deg^2'%(nside, pixarea)) 
+    print()
+    print(' %d unique pixels are detected.'%len(unq))
+    print()
+    print(' total area is %.3f deg^2'%(area) ) 
+    if (args.outputfile is not None): 
+        # nrand = int( len(tc)*randfactor )
+        # ra_rand, dec_rand, skycov_rand = asfunc.sphrand_healpy(nrand, nside, unq)
+        # print('%s random positions are generated'%nrand)  
+        t = Table([hppix], names=['hppix'])
+        print()  
+        print("Writing into '%s' ..."% args.outputfile) 
+        print()  
+        print(t) 
+        t.write(args.outputfile, overwrite=True)
+    else: 
+        print( '     mean density of object in each subregion: ', np.mean(cnt/pixarea), 'deg^{-2}' ) 
+        print( '   median density of object in each subregion: ', np.median(cnt/pixarea), 'deg^{-2}' ) 
+        print( 'deviation density of object in each subregion: ', np.std(cnt/pixarea), 'deg^{-2}' ) 
+        print() 
+        print(' cartviewing ...')
+        cartview(vmap)
+    print() 
+    print(' done.') 

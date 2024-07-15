@@ -1,0 +1,61 @@
+#!/usr/bin/env python
+
+import argparse
+def get_argpars(): 
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('filename', metavar='input_catalog', type=str, 
+                        help='input file name')
+    parser.add_argument('--radeccols', type=int, nargs=2, required=False, default=None,
+                        help='ra & dec cols of input catalog')    
+    parser.add_argument('--nside', type=int,  required = False, default=16, 
+                        help='nside of healpix') 
+    parser.add_argument('-o', '--outputfile', type=str, default = None, 
+                        help='output file', action = 'store')  
+    parser.add_argument('--verbose', action='store_true', 
+                        help='increase output verbosity')
+    return parser.parse_args()
+
+# ... rest of your code ...
+import os 
+import sys,string
+import numpy as np
+import healpy as hp 
+from astropy.table import Table 
+import matplotlib.pyplot as plt
+from csstmock import asfunc
+from csstmock import utils 
+
+if __name__ == '__main__': 
+    args   = get_argpars()
+    nside  = args.nside
+    tc     = utils.file2table(args.filename, usecols=args.radeccols, colnames = ['ra', 'dec']) 
+    hppix  = hp.ang2pix(nside, tc['ra'], tc['dec'], lonlat=True)
+    unq, cnt = np.unique(hppix, return_counts=True) 
+    pixarea  = hp.nside2pixarea(nside, degrees=True) 
+    area     = pixarea*len(unq)
+    vmap     = np.zeros(hp.nside2npix(nside)) - np.inf
+    vmap[unq]= cnt/pixarea
+    if args.verbose:
+        print()
+        print(' input %s targets'%(len(tc)) ) 
+        print()
+        print(' set nside = %d, pixarea = %.3f deg^2'%(nside, pixarea)) 
+        print()
+        print(' %d unique pixels are detected.'%len(unq))
+        print()
+        print(' total area is %.3f deg^2'%(area) ) 
+    if (args.outputfile is not None): 
+        print()  
+        print("Writing into '%s' ..."% args.outputfile)
+        print()  
+        hp.write_map(args.outputfile, vmap, overwrite=True)
+    else: 
+        if args.verbose:
+            print( '     mean density: ', np.mean(cnt/pixarea), 'deg^{-2}' ) 
+            print( '   median density: ', np.median(cnt/pixarea), 'deg^{-2}' ) 
+            print( 'deviation density: ', np.std(cnt/pixarea), 'deg^{-2}' ) 
+            print() 
+            print(' cartviewing ...') 
+        asfunc.cartview(vmap)
+    print() 
+    print(' done.')

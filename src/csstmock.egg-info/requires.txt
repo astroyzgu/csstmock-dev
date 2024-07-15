@@ -3,4 +3,6 @@ numpy
 astropy
 healpy
 h5py
+corrfunc
+imageio
 pytest

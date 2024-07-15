@@ -3,11 +3,13 @@ Name: csstmock
 Version: 1.0.0
 Summary: Construct mock catalog and apply foreground masks for CSST.
 Author: SJTU group
-Author-email: Yizhou Gu <guyizhou@sjtu.edu.cn>
+Author-email: guyizhou@sjtu.edu.cn
 Requires-Python: >=3.7
 Requires-Dist: matplotlib
 Requires-Dist: numpy
 Requires-Dist: astropy
 Requires-Dist: healpy
 Requires-Dist: h5py
+Requires-Dist: corrfunc
+Requires-Dist: imageio
 Requires-Dist: pytest
